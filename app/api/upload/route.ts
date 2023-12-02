@@ -75,6 +75,7 @@ async function uploadtoOpenAI(filepath: string) {
     console.log(`File uploaded, ID: ${fileForRetrieval.id}`);
   } catch (e) {
     console.log(`Uploading file to OpenAI:`, e);
+    throw e; // Propagate the error further if needed
   }
 }
 
@@ -104,7 +105,8 @@ async function convertXlsxToCSV(xlsxFilePath: string, csvFilePath: string) {
     //response instead
     fs.writeFile(csvFilePath, writeStr, function (err) {
       if (err) {
-        return console.log(err);
+        console.error(err);
+        throw err; // Handle the error if needed
       }
       console.log(`Converted from ${xlsxFilePath} to ${csvFilePath} successfully!`);
 
@@ -117,7 +119,7 @@ async function convertXlsxToCSV(xlsxFilePath: string, csvFilePath: string) {
 }
 
 // Function to recursively convert XLSX files in subdirectories to PDFs
-async function convertXlsxFilesToPdf(directory: string) {
+async function convertXlsxFilesToCSVAndUpload(directory: string) {
   try {
     const files = fs.readdirSync(directory);
 
@@ -126,7 +128,7 @@ async function convertXlsxFilesToPdf(directory: string) {
       const fileStat = fs.statSync(filePath);
 
       if (fileStat.isDirectory()) {
-        await convertXlsxFilesToPdf(filePath); // Recursively handle subdirectories
+        await convertXlsxFilesToCSVAndUpload(filePath); // Recursively handle subdirectories
       } else if (file.endsWith(".xlsx")) {
         const csvFileName = `${pathModule.basename(file, ".xlsx")}.csv`;
         const csvFilePath = pathModule.join(directory, csvFileName);
@@ -134,7 +136,7 @@ async function convertXlsxFilesToPdf(directory: string) {
         await convertXlsxToCSV(filePath, csvFilePath);
       } else {
         // uploadtoOpenAI(filePath);
-        console.log("Unsupported");
+        console.log("Unsupported file type:", file);
       }
     }
   } catch (error) {
@@ -175,9 +177,7 @@ export async function POST(request: NextRequest) {
 
       console.log(`zipFile is extracted to ${extractDir}`);
       // Start conversion process
-      convertXlsxFilesToPdf(extractDir)
-        .then(() => console.log("All XLSX files converted to CSVs and Uploaded"))
-        .catch((err) => console.error("Conversion error:", err));
+      await convertXlsxFilesToCSVAndUpload(extractDir);
     } else {
       // Start uploading the file to OpenAI
       uploadtoOpenAI(uploadedFilePath);
