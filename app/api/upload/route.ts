@@ -154,15 +154,24 @@ export async function POST(request: NextRequest) {
       uploadtoOpenAI(uploadedFilePath);
     }
 
-    const fileForRetrieval = await openai.files.create({
-      file: createReadStream(uploadedFilePath),
-      purpose: "assistants",
-    });
-    FileIds.push(fileForRetrieval.id);
-    console.log(`File uploaded, ID: ${fileForRetrieval.id}`);
+    // try {
+    //   const fileForRetrieval = await openai.files.create({
+    //     file: createReadStream(uploadedFilePath),
+    //     purpose: "assistants",
+    //   });
+    //   FileIds.push(fileForRetrieval.id);
+    //   console.log(`File uploaded, ID: ${fileForRetrieval.id}`);
+    // } catch (e) {
+    //   console.log(`Uploading file to OpenAI:`, e);
+    //   throw e; // Propagate the error further if needed
+    // }
 
     // Respond with success and the file ID
-    return NextResponse.json({ success: true, fileIds: FileIds });
+    if(FileIds && FileIds.length > 0) {
+      return NextResponse.json({ success: true, fileIds: FileIds });
+    } else {
+      return NextResponse.json({ success: false, fileIds: FileIds });
+    }
   } catch (error) {
     // Log and handle any errors during file upload
     console.error("Error uploading file:", error);
