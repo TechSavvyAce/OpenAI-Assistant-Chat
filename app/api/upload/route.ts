@@ -181,17 +181,6 @@ export async function POST(request: NextRequest) {
         .catch((err) => console.error("Conversion error:", err));
     }
 
-    ////////// FILE CHANGE IS FINISHED /////////////
-
-    // Start uploading the file to OpenAI
-    console.log("Starting file upload to OpenAI");
-    const fileForRetrieval = await openai.files.create({
-      file: createReadStream(uploadedFilePath),
-      purpose: "assistants",
-    });
-    FileIds.push(fileForRetrieval.id);
-    console.log(`File uploaded, ID: ${fileForRetrieval.id}`);
-
     // Respond with success and the file ID
     return NextResponse.json({ success: true, fileIds: FileIds });
   } catch (error) {
