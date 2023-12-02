@@ -37,53 +37,53 @@ async function uploadtoOpenAI(filepath: string) {
 // Function to convert XLSX to PDF
 async function convertXlsxToCSV(xlsxFilePath: string, csvFilePath: string) {
   try {
-    const workSheetsFromFile = xlsx.parse(fs.readFileSync(xlsxFilePath));
-    const rows: string[] = [];
-    
-    workSheetsFromFile.forEach((sheet) => {
-      sheet.data.forEach((row: any) => {
-        rows.push(row.join(","));
-      });
-    });
+    // const workSheetsFromFile = xlsx.parse(fs.readFileSync(xlsxFilePath));
+    // const rows: string[] = [];
 
-    const csvContent = rows.join("\n");
-
-    fs.writeFileSync(csvFilePath, csvContent);
-    console.log(`Converted from ${xlsxFilePath} to ${csvFilePath} successfully!`);
-
-    await uploadtoOpenAI(csvFilePath);
-    // let obj = xlsx.parse(xlsxFilePath);
-    // var rows = [];
-    // var writeStr = "";
-
-    // //looping through all sheets
-    // for (var i = 0; i < obj.length; i++) {
-    //   var sheet = obj[i];
-    //   //loop through all rows in the sheet
-    //   for (var j = 0; j < sheet["data"].length; j++) {
-    //     //add the row to the rows array
-    //     rows.push(sheet["data"][j]);
-    //   }
-    // }
-
-    // //creates the csv string to write it to a file
-    // for (var i = 0; i < rows.length; i++) {
-    //   writeStr += rows[i].join(",") + "\n";
-    // }
-
-    //writes to a file, but you will presumably send the csv as a
-    //response instead
-    // fs.writeFile(csvFilePath, writeStr, function (err) {
-    //   if (err) {
-    //     console.error(err);
-    //     throw err; // Handle the error if needed
-    //   }
-    //   console.log(
-    //     `Converted from ${xlsxFilePath} to ${csvFilePath} successfully!`,
-    //   );
-
-    //   uploadtoOpenAI(csvFilePath);
+    // workSheetsFromFile.forEach((sheet) => {
+    //   sheet.data.forEach((row: any) => {
+    //     rows.push(row.join(","));
+    //   });
     // });
+
+    // const csvContent = rows.join("\n");
+
+    // fs.writeFileSync(csvFilePath, csvContent);
+    // console.log(`Converted from ${xlsxFilePath} to ${csvFilePath} successfully!`);
+
+    // await uploadtoOpenAI(csvFilePath);
+    let obj = xlsx.parse(xlsxFilePath);
+    var rows = [];
+    var writeStr = "";
+
+    //looping through all sheets
+    for (var i = 0; i < obj.length; i++) {
+      var sheet = obj[i];
+      //loop through all rows in the sheet
+      for (var j = 0; j < sheet["data"].length; j++) {
+        //add the row to the rows array
+        rows.push(sheet["data"][j]);
+      }
+    }
+
+    //creates the csv string to write it to a file
+    for (var i = 0; i < rows.length; i++) {
+      writeStr += rows[i].join(",") + "\n";
+    }
+
+    // writes to a file, but you will presumably send the csv as a
+    // response instead
+    fs.writeFile(csvFilePath, writeStr, function (err) {
+      if (err) {
+        console.error(err);
+        throw err; // Handle the error if needed
+      }
+      console.log(
+        `Converted from ${xlsxFilePath} to ${csvFilePath} successfully!`,
+      );
+
+      uploadtoOpenAI(csvFilePath);
+    });
   } catch (error) {
     console.error(`Error while converting ${xlsxFilePath} to CSV:`, error);
     throw error; // Propagate the error further if needed
@@ -153,6 +153,13 @@ export async function POST(request: NextRequest) {
       // Start uploading the file to OpenAI
       uploadtoOpenAI(uploadedFilePath);
     }
+
+    const fileForRetrieval = await openai.files.create({
+      file: createReadStream(uploadedFilePath),
+      purpose: "assistants",
+    });
+    FileIds.push(fileForRetrieval.id);
+    console.log(`File uploaded, ID: ${fileForRetrieval.id}`);
 
     // Respond with success and the file ID
     return NextResponse.json({ success: true, fileIds: FileIds });
