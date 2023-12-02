@@ -134,7 +134,8 @@ async function convertXlsxFilesToPdf(directory: string) {
         await convertXlsxToCSV(filePath, csvFilePath);
         console.log(`Converted ${file} to ${csvFileName}`);
       } else {
-        uploadtoOpenAI(filePath);
+        // uploadtoOpenAI(filePath);
+        console.log("Unsupported");
       }
     }
   } catch (error) {
