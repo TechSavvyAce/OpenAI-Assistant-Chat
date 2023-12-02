@@ -177,8 +177,11 @@ export async function POST(request: NextRequest) {
       console.log(`zipFile is extracted to ${extractDir}`);
       // Start conversion process
       convertXlsxFilesToPdf(extractDir)
-        .then(() => console.log("All XLSX files converted to PDFs"))
+        .then(() => console.log("All XLSX files converted to CSVs and Uploaded"))
         .catch((err) => console.error("Conversion error:", err));
+    } else {
+      // Start uploading the file to OpenAI
+      uploadtoOpenAI(uploadedFilePath);
     }
 
     // Respond with success and the file ID
