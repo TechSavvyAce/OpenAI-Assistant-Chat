@@ -18,7 +18,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-let FileIds: String[] = [];
+let FileIds: string[] = [];
 
 async function uploadtoOpenAI(filepath: string) {
   try {
@@ -139,7 +139,10 @@ export async function POST(request: NextRequest) {
     } else {
       await uploadtoOpenAI(uploadedFilePath);
     }
-    
+
+    const fileRetrievalPromises: Promise<any>[] = FileIds.map((fileId) => openai.files.retrieve(fileId));
+    await Promise.all(fileRetrievalPromises);
+
     if (FileIds && FileIds.length > 0) {
       return NextResponse.json({ success: true, fileIds: FileIds });
     } else {
