@@ -35,7 +35,10 @@ async function uploadtoOpenAI(filepath: string) {
 }
 
 // Function to convert XLSX to PDF
-async function convertXlsxToCSVAndUpload(xlsxFilePath: string, csvFilePath: string) {
+async function convertXlsxToCSVAndUpload(
+  xlsxFilePath: string,
+  csvFilePath: string,
+) {
   try {
     let obj = xlsx.parse(xlsxFilePath);
     var rows = [];
@@ -79,7 +82,6 @@ async function convertXlsxToCSVAndUpload(xlsxFilePath: string, csvFilePath: stri
 async function convertXlsxFilesToCSVAndUpload(directory: string) {
   try {
     const files = fs.readdirSync(directory);
-    const uploadPromises = [];
 
     for (const file of files) {
       const filePath = pathModule.join(directory, file);
@@ -91,15 +93,12 @@ async function convertXlsxFilesToCSVAndUpload(directory: string) {
         const csvFileName = `${pathModule.basename(file, ".xlsx")}.csv`;
         const csvFilePath = pathModule.join(directory, csvFileName);
 
-        uploadPromises.push(convertXlsxToCSVAndUpload(filePath, csvFilePath));
         await convertXlsxToCSVAndUpload(filePath, csvFilePath);
       } else {
         // uploadtoOpenAI(filePath);
         console.log("Unsupported file type:", file);
       }
     }
-
-    return Promise.all(uploadPromises);
   } catch (error) {
     console.error(`Error while processing directory ${directory}:`, error);
     throw error; // Propagate the error further if needed
@@ -134,15 +133,12 @@ async function POST(request: NextRequest) {
       const zip = new AdmZip(uploadedFilePath);
       const extractDir = `/tmp/${pathModule.parse(uploadedfile.name).name}`;
       zip.extractAllTo(extractDir, true);
-    
+
       console.log(`zipFile is extracted to ${extractDir}`);
       await convertXlsxFilesToCSVAndUpload(extractDir);
     } else {
       await uploadtoOpenAI(uploadedFilePath);
     }
-
-    const fileRetrievalPromises: Promise<any>[] = FileIds.map((fileId) => openai.files.retrieve(fileId));
-    await Promise.all(fileRetrievalPromises);
 
     if (FileIds && FileIds.length > 0) {
       return NextResponse.json({ success: true, fileIds: FileIds });
