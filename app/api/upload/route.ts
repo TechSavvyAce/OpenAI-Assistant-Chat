@@ -35,23 +35,8 @@ async function uploadtoOpenAI(filepath: string) {
 }
 
 // Function to convert XLSX to PDF
-async function convertXlsxToCSV(xlsxFilePath: string, csvFilePath: string) {
+async function convertXlsxToCSVAndUpload(xlsxFilePath: string, csvFilePath: string) {
   try {
-    // const workSheetsFromFile = xlsx.parse(fs.readFileSync(xlsxFilePath));
-    // const rows: string[] = [];
-
-    // workSheetsFromFile.forEach((sheet) => {
-    //   sheet.data.forEach((row: any) => {
-    //     rows.push(row.join(","));
-    //   });
-    // });
-
-    // const csvContent = rows.join("\n");
-
-    // fs.writeFileSync(csvFilePath, csvContent);
-    // console.log(`Converted from ${xlsxFilePath} to ${csvFilePath} successfully!`);
-
-    // await uploadtoOpenAI(csvFilePath);
     let obj = xlsx.parse(xlsxFilePath);
     var rows = [];
     var writeStr = "";
@@ -82,7 +67,7 @@ async function convertXlsxToCSV(xlsxFilePath: string, csvFilePath: string) {
         `Converted from ${xlsxFilePath} to ${csvFilePath} successfully!`,
       );
 
-      uploadtoOpenAI(csvFilePath);
+      return uploadtoOpenAI(csvFilePath);
     });
   } catch (error) {
     console.error(`Error while converting ${xlsxFilePath} to CSV:`, error);
@@ -94,6 +79,7 @@ async function convertXlsxToCSV(xlsxFilePath: string, csvFilePath: string) {
 async function convertXlsxFilesToCSVAndUpload(directory: string) {
   try {
     const files = fs.readdirSync(directory);
+    const uploadPromises = [];
 
     for (const file of files) {
       const filePath = pathModule.join(directory, file);
@@ -105,12 +91,15 @@ async function convertXlsxFilesToCSVAndUpload(directory: string) {
         const csvFileName = `${pathModule.basename(file, ".xlsx")}.csv`;
         const csvFilePath = pathModule.join(directory, csvFileName);
 
-        await convertXlsxToCSV(filePath, csvFilePath);
+        uploadPromises.push(convertXlsxToCSVAndUpload(filePath, csvFilePath));
+        await convertXlsxToCSVAndUpload(filePath, csvFilePath);
       } else {
         // uploadtoOpenAI(filePath);
         console.log("Unsupported file type:", file);
       }
     }
+
+    return Promise.all(uploadPromises);
   } catch (error) {
     console.error(`Error while processing directory ${directory}:`, error);
     throw error; // Propagate the error further if needed
@@ -141,33 +130,17 @@ export async function POST(request: NextRequest) {
     ////////// FILE CHANGE IS STARTED /////////////
     const uploadedFileType = pathModule.extname(uploadedfile.name).slice(1);
     if (uploadedFileType === "zip") {
-      // Extract the contents of the uploaded ZIP file
-      const zip = new AdmZip(uploadedFilePath); // or use 'unzipper' for extraction
-      const extractDir = `/tmp/${pathModule.parse(uploadedfile.name).name}`; // Directory to extract files
-      zip.extractAllTo(extractDir, /*overwrite*/ true);
-
+      const zip = new AdmZip(uploadedFilePath);
+      const extractDir = `/tmp/${pathModule.parse(uploadedfile.name).name}`;
+      zip.extractAllTo(extractDir, true);
+    
       console.log(`zipFile is extracted to ${extractDir}`);
-      // Start conversion process
       await convertXlsxFilesToCSVAndUpload(extractDir);
     } else {
-      // Start uploading the file to OpenAI
-      uploadtoOpenAI(uploadedFilePath);
+      await uploadtoOpenAI(uploadedFilePath);
     }
-
-    // try {
-    //   const fileForRetrieval = await openai.files.create({
-    //     file: createReadStream(uploadedFilePath),
-    //     purpose: "assistants",
-    //   });
-    //   FileIds.push(fileForRetrieval.id);
-    //   console.log(`File uploaded, ID: ${fileForRetrieval.id}`);
-    // } catch (e) {
-    //   console.log(`Uploading file to OpenAI:`, e);
-    //   throw e; // Propagate the error further if needed
-    // }
-
-    // Respond with success and the file ID
-    if(FileIds && FileIds.length > 0) {
+    
+    if (FileIds && FileIds.length > 0) {
       return NextResponse.json({ success: true, fileIds: FileIds });
     } else {
       return NextResponse.json({ success: false, fileIds: FileIds });
