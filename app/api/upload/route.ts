@@ -98,6 +98,7 @@ async function convertXlsxFilesToCSVAndUpload(directory: string) {
       } else {
         // uploadtoOpenAI(filePath);
         console.log("Unsupported file type:", file);
+        continue;
       }
     }
   } catch (error) {
