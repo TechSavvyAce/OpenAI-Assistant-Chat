@@ -20,7 +20,7 @@ const openai = new OpenAI({
 
 let FileIds: String[] = [];
 
-async fuconst uploadedFileid = uploadtoOpenAI(filepath: string) {
+async function uploadtoOpenAI(filepath: string) {
   try {
     const fileForRetrieval = await openai.files.create({
       file: createReadStream(filepath),
