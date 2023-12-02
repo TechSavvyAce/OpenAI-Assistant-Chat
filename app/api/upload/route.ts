@@ -23,129 +23,131 @@ import fs from "fs";
 // import { CSVLoader } from "langchain/document_loaders/fs/csv";
 // import { Document } from "langchain/document";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-let FileIds: String[] = [];
-
-// async function uploadFileLangChain(path: string) {
-//   try {
-//     let type = pathModule.extname(path).slice(1);
-
-//     let combinedDecompSPR = "";
-//     let docs_raw: Document<Record<string, any>>[] = [];
-//     const textSplitter = new RecursiveCharacterTextSplitter({
-//       //chunkSize: 9999,
-//       chunkSize: 133333,
-//       chunkOverlap: 250,
-//     });
-//     // Read the file
-//     //try {
-//     if (type === "pdf") {
-//       const pdfLoader = new PDFLoader(path);
-//       docs_raw = await pdfLoader.loadAndSplit(textSplitter);
-//     } else if (type === "text") {
-//       const txtLoader = new TextLoader(path);
-//       docs_raw = await txtLoader.loadAndSplit(textSplitter);
-//     } else if (type === "csv") {
-//       const csvLoader = new CSVLoader(path);
-//       docs_raw = await csvLoader.loadAndSplit(textSplitter);
-//     } else if (type === "doc" || type === "docx") {
-//       const docxLoader = new DocxLoader(path);
-//       docs_raw = await docxLoader.loadAndSplit(textSplitter);
-//     } else {
-//       sendData("[Processing]:" + "Unsupported File. Please try again.");
-//       sendData("[DONE]");
-//       response.end();
-//       return;
-//     }
-//   } catch (e) {
-//     console.log("Uploading with LangChain Error:", e);
-//   }
-// }
-
-async function uploadtoOpenAI(filepath: string) {
-  try {
-    const fileForRetrieval = await openai.files.create({
-      file: createReadStream(filepath),
-      purpose: "assistants",
-    });
-    FileIds.push(fileForRetrieval.id);
-    console.log(`File uploaded, ID: ${fileForRetrieval.id}`);
-  } catch (e) {
-    console.log(`Uploading file to OpenAI:`, e);
-    throw e; // Propagate the error further if needed
-  }
-}
-
-// Function to convert XLSX to PDF
-async function convertXlsxToCSV(xlsxFilePath: string, csvFilePath: string) {
-  try {
-    let obj = xlsx.parse(xlsxFilePath);
-    var rows = [];
-    var writeStr = "";
-
-    //looping through all sheets
-    for (var i = 0; i < obj.length; i++) {
-      var sheet = obj[i];
-      //loop through all rows in the sheet
-      for (var j = 0; j < sheet["data"].length; j++) {
-        //add the row to the rows array
-        rows.push(sheet["data"][j]);
-      }
-    }
-
-    //creates the csv string to write it to a file
-    for (var i = 0; i < rows.length; i++) {
-      writeStr += rows[i].join(",") + "\n";
-    }
-
-    //writes to a file, but you will presumably send the csv as a
-    //response instead
-    fs.writeFile(csvFilePath, writeStr, function (err) {
-      if (err) {
-        console.error(err);
-        throw err; // Handle the error if needed
-      }
-      console.log(`Converted from ${xlsxFilePath} to ${csvFilePath} successfully!`);
-
-      uploadtoOpenAI(csvFilePath);
-    });
-  } catch (error) {
-    console.error(`Error while converting ${xlsxFilePath} to CSV:`, error);
-    throw error; // Propagate the error further if needed
-  }
-}
-
-// Function to recursively convert XLSX files in subdirectories to PDFs
-async function convertXlsxFilesToCSVAndUpload(directory: string) {
-  try {
-    const files = fs.readdirSync(directory);
-
-    for (const file of files) {
-      const filePath = pathModule.join(directory, file);
-      const fileStat = fs.statSync(filePath);
-
-      if (fileStat.isDirectory()) {
-        await convertXlsxFilesToCSVAndUpload(filePath); // Recursively handle subdirectories
-      } else if (file.endsWith(".xlsx")) {
-        const csvFileName = `${pathModule.basename(file, ".xlsx")}.csv`;
-        const csvFilePath = pathModule.join(directory, csvFileName);
-
-        await convertXlsxToCSV(filePath, csvFilePath);
-      } else {
-        // uploadtoOpenAI(filePath);
-        console.log("Unsupported file type:", file);
-      }
-    }
-  } catch (error) {
-    console.error(`Error while processing directory ${directory}:`, error);
-    throw error; // Propagate the error further if needed
-  }
-}
-
 export async function POST(request: NextRequest) {
+  const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+
+  let FileIds: String[] = [];
+
+  // async function uploadFileLangChain(path: string) {
+  //   try {
+  //     let type = pathModule.extname(path).slice(1);
+
+  //     let combinedDecompSPR = "";
+  //     let docs_raw: Document<Record<string, any>>[] = [];
+  //     const textSplitter = new RecursiveCharacterTextSplitter({
+  //       //chunkSize: 9999,
+  //       chunkSize: 133333,
+  //       chunkOverlap: 250,
+  //     });
+  //     // Read the file
+  //     //try {
+  //     if (type === "pdf") {
+  //       const pdfLoader = new PDFLoader(path);
+  //       docs_raw = await pdfLoader.loadAndSplit(textSplitter);
+  //     } else if (type === "text") {
+  //       const txtLoader = new TextLoader(path);
+  //       docs_raw = await txtLoader.loadAndSplit(textSplitter);
+  //     } else if (type === "csv") {
+  //       const csvLoader = new CSVLoader(path);
+  //       docs_raw = await csvLoader.loadAndSplit(textSplitter);
+  //     } else if (type === "doc" || type === "docx") {
+  //       const docxLoader = new DocxLoader(path);
+  //       docs_raw = await docxLoader.loadAndSplit(textSplitter);
+  //     } else {
+  //       sendData("[Processing]:" + "Unsupported File. Please try again.");
+  //       sendData("[DONE]");
+  //       response.end();
+  //       return;
+  //     }
+  //   } catch (e) {
+  //     console.log("Uploading with LangChain Error:", e);
+  //   }
+  // }
+
+  async function uploadtoOpenAI(filepath: string) {
+    try {
+      const fileForRetrieval = await openai.files.create({
+        file: createReadStream(filepath),
+        purpose: "assistants",
+      });
+      FileIds.push(fileForRetrieval.id);
+      console.log(`File uploaded, ID: ${fileForRetrieval.id}`);
+    } catch (e) {
+      console.log(`Uploading file to OpenAI:`, e);
+      throw e; // Propagate the error further if needed
+    }
+  }
+
+  // Function to convert XLSX to PDF
+  async function convertXlsxToCSV(xlsxFilePath: string, csvFilePath: string) {
+    try {
+      let obj = xlsx.parse(xlsxFilePath);
+      var rows = [];
+      var writeStr = "";
+
+      //looping through all sheets
+      for (var i = 0; i < obj.length; i++) {
+        var sheet = obj[i];
+        //loop through all rows in the sheet
+        for (var j = 0; j < sheet["data"].length; j++) {
+          //add the row to the rows array
+          rows.push(sheet["data"][j]);
+        }
+      }
+
+      //creates the csv string to write it to a file
+      for (var i = 0; i < rows.length; i++) {
+        writeStr += rows[i].join(",") + "\n";
+      }
+
+      //writes to a file, but you will presumably send the csv as a
+      //response instead
+      fs.writeFile(csvFilePath, writeStr, function (err) {
+        if (err) {
+          console.error(err);
+          throw err; // Handle the error if needed
+        }
+        console.log(
+          `Converted from ${xlsxFilePath} to ${csvFilePath} successfully!`,
+        );
+
+        uploadtoOpenAI(csvFilePath);
+      });
+    } catch (error) {
+      console.error(`Error while converting ${xlsxFilePath} to CSV:`, error);
+      throw error; // Propagate the error further if needed
+    }
+  }
+
+  // Function to recursively convert XLSX files in subdirectories to PDFs
+  async function convertXlsxFilesToCSVAndUpload(directory: string) {
+    try {
+      const files = fs.readdirSync(directory);
+
+      for (const file of files) {
+        const filePath = pathModule.join(directory, file);
+        const fileStat = fs.statSync(filePath);
+
+        if (fileStat.isDirectory()) {
+          await convertXlsxFilesToCSVAndUpload(filePath); // Recursively handle subdirectories
+        } else if (file.endsWith(".xlsx")) {
+          const csvFileName = `${pathModule.basename(file, ".xlsx")}.csv`;
+          const csvFilePath = pathModule.join(directory, csvFileName);
+
+          await convertXlsxToCSV(filePath, csvFilePath);
+        } else {
+          // uploadtoOpenAI(filePath);
+          console.log("Unsupported file type:", file);
+        }
+      }
+    } catch (error) {
+      console.error(`Error while processing directory ${directory}:`, error);
+      throw error; // Propagate the error further if needed
+    }
+  }
+
   try {
     // Logging the start of the upload process
     console.log(`Upload API call started`);
