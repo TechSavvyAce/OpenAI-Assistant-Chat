@@ -40,7 +40,7 @@ export default function Chat() {
   const [assistantModel, setAssistantModel] = useState("gpt-4-1106-preview");
   const [assistantDescription, setAssistantDescription] = useState("");
   const [inputmessage, setInputmessage] = useState(
-    "discussion for CRIMINAL RICO",
+    "discussion for monday.com workflow",
   );
   const [chatMessages, setChatMessages] = useState<
     { role: string; content: any }[]
@@ -329,7 +329,7 @@ export default function Chat() {
                 required
                 className="rounded-md border border-gray-200 p-2"
               />
-              <div>
+              {/* <div>
                 <button
                   onClick={() => setAssistantModel("gpt-4-1106-preview")}
                   className={`rounded-md border border-gray-400 p-1 ${
@@ -350,7 +350,7 @@ export default function Chat() {
                 >
                   GPT-3.5
                 </button>
-              </div>
+              </div> */}
               <div
                 className="drop-area rounded-md border-2 border-dashed border-gray-400 p-4 text-center"
                 onClick={() => {

@@ -29,6 +29,10 @@ export async function POST(req: NextRequest) {
       }
       console.log("Received File ID:", fileIds); // Log the received file ID
 
+      if (!assistantName || !assistantModel || !assistantDescription) {
+        throw new Error("Missing required assistant parameters");
+      }
+
       if (inputmessage === null || typeof inputmessage !== "string") {
         throw new Error("inputmessage is missing or not a string");
       }
@@ -40,7 +44,7 @@ export async function POST(req: NextRequest) {
         tools: [{ type: "retrieval" }],
       };
       if (fileIds) {
-        assistantOptions.file_ids = [fileIds];
+        assistantOptions.file_ids = fileIds;
       }
       console.log("Assistant Options:", assistantOptions); // Log assistant options
 
@@ -56,18 +60,18 @@ export async function POST(req: NextRequest) {
           },
         ],
       });
-      const thread1 = await openai.beta.threads.create({
-        messages: [
-          {
-            role: "user",
-            content: inputmessage,
-          },
-        ],
-      });
+      // const thread1 = await openai.beta.threads.create({
+      //   messages: [
+      //     {
+      //       role: "user",
+      //       content: inputmessage,
+      //     },
+      //   ],
+      // });
       const threadId = thread.id;
-      const threadId1 = thread1.id;
+      // const threadId1 = thread1.id;
       console.log("Thread ID:", threadId); // Log thread ID
-      console.log("Thread1 ID:", threadId1); // Log thread ID
+      // console.log("Thread1 ID:", threadId1); // Log thread ID
 
       // Start a conversation with the assistant
       const run = await openai.beta.threads.runs.create(threadId, {
@@ -129,7 +133,7 @@ export async function POST(req: NextRequest) {
         response: assistantMessageContent.text.value,
         assistantId: assistantId,
         threadId: threadId,
-        threadId1: threadId1,
+        // threadId1: threadId1,
       });
     } catch (error) {
       if (error instanceof Error) {
