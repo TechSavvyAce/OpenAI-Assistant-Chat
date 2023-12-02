@@ -20,7 +20,7 @@ const openai = new OpenAI({
 
 let FileIds: String[] = [];
 
-async function uploadtoOpenAI(filepath: string) {
+async fuconst uploadedFileid = uploadtoOpenAI(filepath: string) {
   try {
     const fileForRetrieval = await openai.files.create({
       file: createReadStream(filepath),
@@ -28,6 +28,7 @@ async function uploadtoOpenAI(filepath: string) {
     });
     FileIds.push(fileForRetrieval.id);
     console.log(`File uploaded, ID: ${fileForRetrieval.id}`);
+    return fileForRetrieval.id;
   } catch (e) {
     console.log(`Uploading file to OpenAI:`, e);
     throw e; // Propagate the error further if needed
@@ -70,7 +71,7 @@ async function convertXlsxToCSVAndUpload(
         `Converted from ${xlsxFilePath} to ${csvFilePath} successfully!`,
       );
 
-      return uploadtoOpenAI(csvFilePath);
+      const uploadedFileid = uploadtoOpenAI(csvFilePath);
     });
   } catch (error) {
     console.error(`Error while converting ${xlsxFilePath} to CSV:`, error);
@@ -105,7 +106,7 @@ async function convertXlsxFilesToCSVAndUpload(directory: string) {
   }
 }
 
-async function POST(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     // Logging the start of the upload process
     console.log(`Upload API call started`);
@@ -137,7 +138,7 @@ async function POST(request: NextRequest) {
       console.log(`zipFile is extracted to ${extractDir}`);
       await convertXlsxFilesToCSVAndUpload(extractDir);
     } else {
-      await uploadtoOpenAI(uploadedFilePath);
+      const uploadedFileid = await uploadtoOpenAI(uploadedFilePath);
     }
 
     if (FileIds && FileIds.length > 0) {
