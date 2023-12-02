@@ -1,0 +1,75 @@
+Arguments: 
+  C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\yarn\bin\yarn.js
+
+PATH: 
+  C:\Program Files\Common Files\Oracle\Java\javapath;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Program Files\Microsoft\jdk-11.0.16.101-hotspot\bin;C:\Program Files\Eclipse Foundation\jdk-8.0.302.8-hotspot\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\dotnet\;C:\Program Files (x86)\Microsoft SQL Server\100\Tools\Binn\;C:\Program Files\Microsoft SQL Server\100\Tools\Binn\;C:\Program Files\Microsoft SQL Server\100\DTS\Binn\;C:\Program Files\Microsoft\Web Platform Installer\;C:\Program Files (x86)\Microsoft ASP.NET\ASP.NET Web Pages\v1.0\;C:\Program Files\Microsoft SQL Server\110\Tools\Binn\;C:\Program Files (x86)\PuTTY\;C:\Program Files\Microsoft SQL Server\150\Tools\Binn\;C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\;C:\Program Files\Idemia\MorphoLiveScan SDK\bin;c:\Users\football\AppData\Local\GitHubDesktop\;c:\Users\football\AppData\Local\GitHubDesktop\bin;C:\Program Files\Git\cmd;C:\Users\football\AppData\Roaming\nvm;C:\Program Files\nodejs;c:\xampp\php\;d:\E\nvm\nnn\bin\;d:\D\scm\samchonLi\apache-maven-3.9.5\bin;C:\Program Files\Java\jre-1.8\bin;C:\Program Files\Java\jdk-17\bin;C:\Users\football\.local\share\solana\install\active_release\bin;C:\Users\football\AppData\Local\Microsoft\WindowsApps;C:\Users\football\.dotnet\tools;C:\Users\football\AppData\Local\Programs\Microsoft VS Code\bin;C:\python3;C:\python3\Scripts;C:\Users\football\AppData\Local\GitHubDesktop\bin;C:\Users\football\AppData\Local\Coursier\data\bin;D:\E\Intellij\IntelliJ IDEA Community Edition 2023.2.4\bin
+
+Yarn version: 
+  1.22.19
+
+Node version: 
+  18.14.2
+
+Platform: 
+  win32 x64
+
+Trace: 
+  Error: connect ECONNABORTED 104.16.29.34:443
+      at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1494:16)
+
+npm manifest: 
+  {
+    "name": "mondayAssistant",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+      "dev": "next dev",
+      "build": "next build",
+      "start": "next start",
+      "lint": "next lint",
+      "format:write": "prettier --write \"**/*.{css,js,json,jsx,ts,tsx}\"",
+      "format": "prettier \"**/*.{css,js,json,jsx,ts,tsx}\""
+    },
+    "dependencies": {
+      "@fortawesome/fontawesome-svg-core": "^6.4.2",
+      "@fortawesome/free-solid-svg-icons": "^6.4.2",
+      "@fortawesome/react-fontawesome": "^0.2.0",
+      "@types/node": "20.3.1",
+      "@types/react": "18.2.14",
+      "@types/react-dom": "18.2.6",
+      "@upstash/ratelimit": "^0.4.3",
+      "@vercel/analytics": "^1.0.1",
+      "@vercel/kv": "^0.2.2",
+      "ai": "2.2.2",
+      "autoprefixer": "10.4.14",
+      "clsx": "^1.2.1",
+      "encoding": "^0.1.13",
+      "eslint": "8.43.0",
+      "eslint-config-next": "13.4.7",
+      "lucide-react": "^0.252.0",
+      "next": "^14.0.1",
+      "next-connect": "^1.0.0",
+      "openai": "^4.16.1",
+      "postcss": "8.4.24",
+      "react": "18.2.0",
+      "react-dom": "18.2.0",
+      "react-dropzone": "^14.2.3",
+      "react-markdown": "^8.0.7",
+      "react-textarea-autosize": "^8.4.1",
+      "remark-gfm": "^3.0.1",
+      "sonner": "^0.5.0",
+      "tailwindcss": "3.3.2",
+      "typescript": "5.1.3"
+    },
+    "devDependencies": {
+      "@tailwindcss/typography": "^0.5.9",
+      "prettier": "^2.8.8",
+      "prettier-plugin-tailwindcss": "^0.3.0"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
