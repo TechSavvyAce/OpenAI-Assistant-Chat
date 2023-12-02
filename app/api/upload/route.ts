@@ -106,7 +106,7 @@ async function convertXlsxToCSV(xlsxFilePath: string, csvFilePath: string) {
       if (err) {
         return console.log(err);
       }
-      console.log(`Converted from ${xlsxFilePath} to CSV successfully!`);
+      console.log(`Converted from ${xlsxFilePath} to ${csvFilePath} successfully!`);
 
       uploadtoOpenAI(csvFilePath);
     });
@@ -132,7 +132,6 @@ async function convertXlsxFilesToPdf(directory: string) {
         const csvFilePath = pathModule.join(directory, csvFileName);
 
         await convertXlsxToCSV(filePath, csvFilePath);
-        console.log(`Converted ${file} to ${csvFileName}`);
       } else {
         // uploadtoOpenAI(filePath);
         console.log("Unsupported");
