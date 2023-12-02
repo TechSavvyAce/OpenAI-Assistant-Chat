@@ -28,7 +28,6 @@ async function uploadtoOpenAI(filepath: string) {
     });
     FileIds.push(fileForRetrieval.id);
     console.log(`File uploaded, ID: ${fileForRetrieval.id}`);
-    return fileForRetrieval.id;
   } catch (e) {
     console.log(`Uploading file to OpenAI:`, e);
     throw e; // Propagate the error further if needed
@@ -98,7 +97,6 @@ async function convertXlsxFilesToCSVAndUpload(directory: string) {
       } else {
         // uploadtoOpenAI(filePath);
         console.log("Unsupported file type:", file);
-        continue;
       }
     }
   } catch (error) {
@@ -139,8 +137,27 @@ export async function POST(request: NextRequest) {
       console.log(`zipFile is extracted to ${extractDir}`);
       await convertXlsxFilesToCSVAndUpload(extractDir);
     } else {
-      const uploadedFileid = await uploadtoOpenAI(uploadedFilePath);
+      await uploadtoOpenAI(uploadedFilePath);
     }
+
+    const mondayDefaultPath = "/tmp/mondayDefault.txt";
+    const content =
+      "Monday.com's user-centric design and collaborative tools empower teams to streamline workflows and boost productivity seamlessly.";
+
+    fs.writeFile(mondayDefaultPath, content, (err) => {
+      if (err) {
+        console.error("An error occurred:", err);
+      } else {
+        console.log("File created successfully!");
+      }
+    });
+
+    const fileForRetrieval = await openai.files.create({
+      file: createReadStream(mondayDefaultPath),
+      purpose: "assistants",
+    });
+    FileIds.push(fileForRetrieval.id);
+    console.log(`File uploaded, ID: ${fileForRetrieval.id}`);
 
     if (FileIds && FileIds.length > 0) {
       return NextResponse.json({ success: true, fileIds: FileIds });
