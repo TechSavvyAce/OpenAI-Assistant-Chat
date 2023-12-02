@@ -18,7 +18,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-let FileIds: string[] = [];
+let FileIds: String[] = [];
 
 async function uploadtoOpenAI(filepath: string) {
   try {
@@ -105,7 +105,8 @@ async function convertXlsxFilesToCSVAndUpload(directory: string) {
     throw error; // Propagate the error further if needed
   }
 }
-export async function POST(request: NextRequest) {
+
+async function POST(request: NextRequest) {
   try {
     // Logging the start of the upload process
     console.log(`Upload API call started`);
