@@ -27,7 +27,16 @@ export async function POST(request: NextRequest) {
 
     // Retrieving the file from the form data
     const data = await request.formData();
-    const directory = data.get("path") as string | null;
+    const directoryString = data.get("path") as string | null;
+
+    // Check if 'fileIds' exists and is a non-null string
+    let directory: string[] = [];
+      
+    if (directoryString) {
+      // Split the string by a delimiter (comma in this case) to get an array of file IDs
+      directory = directoryString.split(",");
+    }
+    console.log("Received File ID:", directory); // Log the received file ID
 
     // Handle the case where no file is found in the request
     if (!directory) {

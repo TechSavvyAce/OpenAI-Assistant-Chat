@@ -91,15 +91,20 @@ export default function Chat() {
 
     const cResponse: CheckResponse = await (await checkResponse).json();
     if (cResponse.success === true) {
-      directory = cResponse.directory;
-    }
-
-    const pathData = new FormData();
-    if (directory) {
-      pathData.set("path", directory);
+      if (cResponse.directory) {
+        directory = cResponse.directory; // Assuming cResponse.directory is of type string[]
+      } else {
+        console.log("Directory is not defined");
+      }
     } else {
-      console.log("Directory is not defined");
-      return;
+      console.log("Check Response is False");
+    }
+    
+    const pathData = new FormData();
+    // Assuming FileIds is an array of strings
+    if (directory && directory.length > 0) {
+      const directoryAsString = directory.join(","); // Convert array to comma-separated string
+      pathData.set("path", directoryAsString);
     }
 
     // Uploading file data
