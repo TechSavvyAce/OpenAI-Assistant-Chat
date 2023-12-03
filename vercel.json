@@ -1,8 +1,7 @@
 {
-    "functions": {
-      "upload": {
-        "maxDuration": 30
-      }
+  "functions": {
+    "upload": {
+      "maxDuration": 30
     }
   }
-  
+}
