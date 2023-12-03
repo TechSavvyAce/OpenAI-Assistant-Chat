@@ -38,7 +38,7 @@ export default function Chat() {
 
   // State variables for managing various aspects of the chat assistant
   const [assistantName, setAssistantName] = useState("");
-  const [assistantModel, setAssistantModel] = useState("gpt-4-1106-preview");
+  const [assistantModel, setAssistantModel] = useState("gpt-4-vision-preview");
   const [assistantDescription, setAssistantDescription] = useState("");
   const [inputmessage, setInputmessage] = useState(
     "Analyze the CSV files related with our Monday.com workflow and assist with it.",

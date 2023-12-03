@@ -13,6 +13,7 @@ import OpenAI from "openai";
 import xlsx from "node-xlsx";
 import pathModule from "path";
 import fs from "fs";
+import fse from 'fs-extra';
 
 let filepaths:String[] = [];
 
@@ -102,7 +103,18 @@ export async function POST(request: NextRequest) {
     // Convert file to buffer and write to a temporary location
     const bytes = await uploadedfile.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const Path = "../../tmp";
+    const Path = "./tmp";
+
+    const pathExists = await fse.pathExists(Path);
+
+    if (pathExists) {
+      console.log('Path exists. Deleting files inside...');
+      await fse.emptyDir(Path); // Deletes all files inside the directory
+    } else {
+      console.log('Path does not exist. Creating...');
+      await fse.ensureDir(Path); // Creates directory if it doesn't exist
+    }
+
     const uploadedFilePath = Path + `/${uploadedfile.name}`;
     await writeFile(uploadedFilePath, buffer);
     console.log(`File written to ${uploadedFilePath}`);
