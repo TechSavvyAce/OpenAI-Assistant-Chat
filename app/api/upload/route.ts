@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
 
     // Retrieving the file from the form data
     const data = await request.formData();
-    const directory = formData.get("path") as string | null;
+    const directory = data.get("path") as string | null;
 
     // Handle the case where no file is found in the request
     if (!directory) {
