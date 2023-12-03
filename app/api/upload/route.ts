@@ -66,8 +66,9 @@ async function convertXlsxToCSVAndUpload(
     // response instead
     fs.writeFile(csvFilePath, writeStr, function (err) {
       if (err) {
-        console.error(err);
-        throw err; // Handle the error if needed
+        console.log(err);
+        return '';
+        //throw err; // Handle the error if needed
       }
       console.log(
         `Converted from ${xlsxFilePath} to ${csvFilePath} successfully!`,
@@ -77,7 +78,7 @@ async function convertXlsxToCSVAndUpload(
       return uploadedFileid;
     });
   } catch (error) {
-    console.error(`Error while converting ${xlsxFilePath} to CSV:`, error);
+    console.log(`Error while converting ${xlsxFilePath} to CSV:`, error);
     return '';
     throw error; // Propagate the error further if needed
   }
@@ -111,7 +112,7 @@ async function convertXlsxFilesToCSVAndUpload(directory: string) {
     }
     return fileIDs;
   } catch (error) {
-    console.error(`Error while processing directory ${directory}:`, error);
+    console.log(`Error while processing directory ${directory}:`, error);
     return [];
     throw error; // Propagate the error further if needed
   }
@@ -180,7 +181,7 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     // Log and handle any errors during file upload
-    console.error("Error uploading file:", error);
+    console.log("Error uploading file:", error);
     return NextResponse.json({
       success: false,
       message: "Error uploading file",
