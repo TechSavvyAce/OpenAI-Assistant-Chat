@@ -67,8 +67,6 @@ async function convertXlsxFilesToCSVAndUpload(directory: string) {
       const fileStat = fs.statSync(filePath);
       console.log("filePath", filePath);
       if (fileStat.isDirectory()) {
-        try {
-        } catch (e) {}
         await convertXlsxFilesToCSVAndUpload(filePath); // Recursively handle subdirectories
       } else if (file.endsWith(".xlsx")) {
         const csvFileName = `${pathModule.basename(file, ".xlsx")}.csv`;
