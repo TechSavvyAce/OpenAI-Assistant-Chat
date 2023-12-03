@@ -84,12 +84,13 @@ async function convertXlsxToCSVAndUpload(
 // Function to recursively convert XLSX files in subdirectories to PDFs
 async function convertXlsxFilesToCSVAndUpload(directory: string) {
   try {
+    console.log('directory',directory)
     const files = fs.readdirSync(directory);
     let fileIDs = [];
     for (const file of files) {
       const filePath = pathModule.join(directory, file);
       const fileStat = fs.statSync(filePath);
-      
+      console.log('filePath',filePath)
       if (fileStat.isDirectory()) {
         let tmpFileIds = await convertXlsxFilesToCSVAndUpload(filePath); // Recursively handle subdirectories
         if(tmpFileIds.length>0){
