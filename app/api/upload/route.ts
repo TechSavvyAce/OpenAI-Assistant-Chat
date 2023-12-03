@@ -6,13 +6,8 @@
 // uploads it to OpenAI, returning the file ID for further operations.
 
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
 import { createReadStream } from "fs";
-import AdmZip from "adm-zip";
 import OpenAI from "openai";
-import xlsx from "node-xlsx";
-import pathModule from "path";
-import fs from "fs";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -29,46 +24,26 @@ export async function POST(request: NextRequest) {
     const data = await request.formData();
     const directoryString = data.get("path") as string | null;
 
-    // Check if 'fileIds' exists and is a non-null string
-    let directory: string[] = [];
-      
-    if (directoryString) {
-      // Split the string by a delimiter (comma in this case) to get an array of file IDs
-      directory = directoryString.split(",");
-    }
-    console.log("Received File ID:", directory); // Log the received file ID
-
     // Handle the case where no file is found in the request
-    if (!directory) {
+    if (!directoryString) {
       console.log("No Directory found in the request");
       return NextResponse.json({ success: false });
     }
 
-    if (directory !== null) {
-      for (const path of directory) {
-        try {
-          console.log(`uploadtoOpenAI: filepath = ${path}`);
-          const fileForRetrieval = await openai.files.create({
-            file: createReadStream(path),
-            purpose: "assistants",
-          });
-          FileIds.push(fileForRetrieval.id);
-          console.log(`File uploaded, ID: ${fileForRetrieval.id}`);
-        } catch (e) {
-          console.log(`Uploading file to OpenAI:`, e);
-          throw e; // Propagate the error further if needed
-        }
-      }
-    } else {
-      console.log('Directory is null');
-      // Handle the null case accordingly
+    try {
+      console.log(`uploadtoOpenAI: filepath = ${directoryString}`);
+      const fileForRetrieval = await openai.files.create({
+        file: createReadStream(directoryString),
+        purpose: "assistants",
+      });
+      console.log(`File uploaded, ID: ${fileForRetrieval.id}`);
+      return NextResponse.json({ success: true, fileId: fileForRetrieval.id });
+    } catch (e) {
+      console.log(`Uploading file to OpenAI:`, e);
+      throw e; // Propagate the error further if needed
     }
-    
-    if (FileIds && FileIds.length > 0) {
-      return NextResponse.json({ success: true, fileIds: FileIds });
-    } else {
-      return NextResponse.json({ success: false, fileIds: FileIds });
-    }
+
+    return NextResponse.json({ success: false });
   } catch (error) {
     // Log and handle any errors during file upload
     console.log("Error uploading file:", error);

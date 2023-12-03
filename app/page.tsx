@@ -99,38 +99,57 @@ export default function Chat() {
     } else {
       console.log("Check Response is False");
     }
-    
-    const pathData = new FormData();
-    // Assuming FileIds is an array of strings
+
+    // Assuming directory is an array of strings
     if (directory && directory.length > 0) {
-      const directoryAsString = directory.join(","); // Convert array to comma-separated string
-      pathData.set("path", directoryAsString);
-    }
-
-    // Uploading file data
-    console.log("Uploading file data.");
-    const uploadResponse = fetch("/api/upload", {
-      method: "POST",
-      body: pathData,
-    });
-
-    const response: UploadResponse = await (await uploadResponse).json();
-    if (response.success === true) {
-      if (response.fileIds) {
-        FileIds = response.fileIds;
-        // Operation was successful, proceed with fileIds or other data
-        console.log("File IDs:", FileIds);
-        setIsUpload(true);
-      } else {
-        // Handle scenario where fileIds might be absent even on success
-        console.log("No File IDs present");
+      try {
+        for (const dir of directory) {
+          const pathData = new FormData();
+          pathData.set("path", dir);
+    
+          // Uploading file data for each directory
+          console.log(`Uploading file data for ${dir}`);
+    
+          const uploadResponse = await fetch("/api/upload", {
+            method: "POST",
+            body: pathData,
+          });
+    
+          if (uploadResponse.ok) {
+            const response = await uploadResponse.json();
+            if (response.success === true) {
+              if (response.fileId) {
+                FileIds.push(response.fileId);
+                // Operation was successful, proceed with fileIds or other data
+                console.log("File IDs:", FileIds);
+                setIsUpload(true);
+              } else {
+                // Handle scenario where fileIds might be absent even on success
+                console.log("No File IDs present");
+                setIsUpload(false);
+              }
+            } else {
+              // Operation failed or success was false
+              console.log("Upload failed");
+              setIsUpload(false);
+            }
+          } else {
+            // Handle HTTP error status
+            console.error(
+              `Error uploading for ${dir}: HTTP error ${uploadResponse.status}`
+            );
+            setIsUpload(false);
+          }
+        }
+      } catch (error) {
+        // Handle other errors if the upload fails
+        console.error("Error uploading:", error);
         setIsUpload(false);
       }
     } else {
-      // Operation failed or success was false
-      console.log("Upload failed");
-      setIsUpload(false);
+      console.log("No directories to upload.");
     }
+    
   };
 
   // Handler for form submissions
