@@ -51,6 +51,7 @@ export default function Chat() {
   const [file, setFile] = useState<File>();
   const [assistantId, setAssistantId] = useState<string | null>(null);
   const [threadId, setThreadId] = useState<string | null>(null);
+  const [runId, setRunId] = useState<string | null>(null);
   const [isStartLoading, setStartLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isUpload, setIsUpload] = useState(false);
@@ -106,15 +107,15 @@ export default function Chat() {
         for (const dir of directory) {
           const pathData = new FormData();
           pathData.set("path", dir);
-    
+
           // Uploading file data for each directory
           console.log(`Uploading file data for ${dir}`);
-    
+
           const uploadResponse = await fetch("/api/upload", {
             method: "POST",
             body: pathData,
           });
-    
+
           if (uploadResponse.ok) {
             const response = await uploadResponse.json();
             if (response.success === true) {
@@ -136,7 +137,7 @@ export default function Chat() {
           } else {
             // Handle HTTP error status
             console.error(
-              `Error uploading for ${dir}: HTTP error ${uploadResponse.status}`
+              `Error uploading for ${dir}: HTTP error ${uploadResponse.status}`,
             );
             setIsUpload(false);
           }
@@ -149,7 +150,6 @@ export default function Chat() {
     } else {
       console.log("No directories to upload.");
     }
-    
   };
 
   // Handler for form submissions
@@ -276,25 +276,44 @@ export default function Chat() {
 
     // Starting the chat
     console.log("Starting chat with the assistant.");
-    const startChatResponse = await fetch("/api/startChat", {
+    const runThreadResponse = await fetch("/api/runThread", {
       method: "POST",
       body: chatData,
     });
-    const startChatData = await startChatResponse.json();
+    const runThreadData = await runThreadResponse.json();
 
-    if (startChatResponse.ok) {
-      setAssistantId(startChatData.assistantId);
-      setThreadId(startChatData.threadId);
+    if (runThreadResponse.ok) {
+      setAssistantId(runThreadData.assistantId);
+      setThreadId(runThreadData.threadId);
+      setRunId(runThreadData.runId);
 
       setIsButtonDisabled(false);
-      setChatMessages((prevMessages) => [
-        ...prevMessages,
-        { role: "assistant", content: startChatData.response },
-      ]);
-      setChatStarted(true);
-      console.log("Chat with assistant started successfully.");
+
+      const threadData = new FormData();
+      threadData.set("assistantId", runThreadData.assistantId);
+      threadData.set("threadId", runThreadData.threadId);
+      threadData.set("runId", runThreadData.runId);
+
+      const startChatResponse = await fetch("/api/startChat", {
+        method: "POST",
+        body: threadData,
+      });
+
+      const startChatData = await startChatResponse.json();
+
+      if (startChatResponse.ok) {
+        setChatMessages((prevMessages) => [
+          ...prevMessages,
+          { role: "assistant", content: startChatData.response },
+        ]);
+        setChatStarted(true);
+        console.log("Chat with assistant started successfully.");
+      } else {
+        console.error("Error starting chat:", startChatData.error);
+        setIsButtonDisabled(false);
+      }
     } else {
-      console.error("Error starting chat:", startChatData.error);
+      console.error("Error starting chat:", runThreadData.error);
       setIsButtonDisabled(false);
     }
   }
