@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
       // Poll for the completion of the run
       let completedRun;
       do {
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Delay for 1 second
+        await new Promise((resolve) => setTimeout(resolve, 100)); // Delay for 1 second
 
         completedRun = await openai.beta.threads.runs.retrieve(
           threadId,
