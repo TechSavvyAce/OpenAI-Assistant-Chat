@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
     // Convert file to buffer and write to a temporary location
     const bytes = await uploadedfile.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const Path = "./tmp";
+    const Path = "../../tmp";
 
     fs.promises
       .access(Path)
