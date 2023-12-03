@@ -132,7 +132,8 @@ export async function POST(request: NextRequest) {
     // Convert file to buffer and write to a temporary location
     const bytes = await uploadedfile.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const uploadedFilePath = `/tmp/${uploadedfile.name}`;
+    const Path = '../../tmp';
+    const uploadedFilePath = Path + `/${uploadedfile.name}`;
     await writeFile(uploadedFilePath, buffer);
     console.log(`File written to ${uploadedFilePath}`);
 
@@ -141,7 +142,7 @@ export async function POST(request: NextRequest) {
     const uploadedFileType = pathModule.extname(uploadedfile.name).slice(1);
     if (uploadedFileType === "zip") {
       const zip = new AdmZip(uploadedFilePath);
-      const extractDir = `/tmp/${pathModule.parse(uploadedfile.name).name}`;
+      const extractDir = Path + `/${pathModule.parse(uploadedfile.name).name}`;
       zip.extractAllTo(extractDir, true);
 
       console.log(`zipFile is extracted to ${extractDir}`);
