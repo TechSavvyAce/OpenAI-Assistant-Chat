@@ -14,8 +14,6 @@ import xlsx from "node-xlsx";
 import pathModule from "path";
 import fs from "fs";
 
-export const maxDuration = 30; // This function can run for a maximum of 5 seconds
-
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
