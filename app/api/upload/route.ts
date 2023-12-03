@@ -144,10 +144,21 @@ export async function POST(request: NextRequest) {
       const zip = new AdmZip(uploadedFilePath);
       const extractDir = Path + `/${pathModule.parse(uploadedfile.name).name}`;
       zip.extractAllTo(extractDir, true);
-
       console.log(`zipFile is extracted to ${extractDir}`);
-      let tmp = await convertXlsxFilesToCSVAndUpload(extractDir);
-      pFileIds.concat(tmp);
+
+      const files = fs.readdirSync(extractDir);
+      const fileIds = await Promise.all(files.map(async (file) => {
+        const filePath = pathModule.join(extractDir, file);
+        if (fs.statSync(filePath).isDirectory()) {
+          return await convertXlsxFilesToCSVAndUpload(filePath);
+        } else if (file.endsWith(".xlsx")) {
+          const csvFileName = `${pathModule.basename(file, ".xlsx")}.csv`;
+          const csvFilePath = pathModule.join(extractDir, csvFileName);
+          return await convertXlsxToCSVAndUpload(filePath, csvFilePath);
+        }
+        return null;
+      }));
+      pFileIds = pFileIds.concat(fileIds.filter(id => id !== null));
     } else {
       pFileIds.push(await uploadtoOpenAI(uploadedFilePath));
     }
