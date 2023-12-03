@@ -28,6 +28,7 @@ async function uploadtoOpenAI(filepath: string) {
     });
     FileIds.push(fileForRetrieval.id);
     console.log(`File uploaded, ID: ${fileForRetrieval.id}`);
+    return fileForRetrieval.id;
   } catch (e) {
     console.log(`Uploading file to OpenAI:`, e);
     throw e; // Propagate the error further if needed
@@ -71,9 +72,11 @@ async function convertXlsxToCSVAndUpload(
       );
 
       const uploadedFileid = uploadtoOpenAI(csvFilePath);
+      return uploadedFileid;
     });
   } catch (error) {
     console.error(`Error while converting ${xlsxFilePath} to CSV:`, error);
+    return '';
     throw error; // Propagate the error further if needed
   }
 }
@@ -82,25 +85,30 @@ async function convertXlsxToCSVAndUpload(
 async function convertXlsxFilesToCSVAndUpload(directory: string) {
   try {
     const files = fs.readdirSync(directory);
-
+    let fileIDs = [];
     for (const file of files) {
       const filePath = pathModule.join(directory, file);
       const fileStat = fs.statSync(filePath);
-
+      
       if (fileStat.isDirectory()) {
-        await convertXlsxFilesToCSVAndUpload(filePath); // Recursively handle subdirectories
+        let tmpFileIds = await convertXlsxFilesToCSVAndUpload(filePath); // Recursively handle subdirectories
+        if(tmpFileIds.length>0){
+          fileIDs.concat(tmpFileIds);
+        }
       } else if (file.endsWith(".xlsx")) {
         const csvFileName = `${pathModule.basename(file, ".xlsx")}.csv`;
         const csvFilePath = pathModule.join(directory, csvFileName);
 
-        await convertXlsxToCSVAndUpload(filePath, csvFilePath);
+        fileIDs.push(await convertXlsxToCSVAndUpload(filePath, csvFilePath));
       } else {
         // uploadtoOpenAI(filePath);
         console.log("Unsupported file type:", file);
       }
     }
+    return fileIDs;
   } catch (error) {
     console.error(`Error while processing directory ${directory}:`, error);
+    return [];
     throw error; // Propagate the error further if needed
   }
 }
@@ -128,6 +136,7 @@ export async function POST(request: NextRequest) {
     console.log(`File written to ${uploadedFilePath}`);
 
     ////////// FILE CHANGE IS STARTED /////////////
+    let pFileIds:any = [];
     const uploadedFileType = pathModule.extname(uploadedfile.name).slice(1);
     if (uploadedFileType === "zip") {
       const zip = new AdmZip(uploadedFilePath);
@@ -135,11 +144,12 @@ export async function POST(request: NextRequest) {
       zip.extractAllTo(extractDir, true);
 
       console.log(`zipFile is extracted to ${extractDir}`);
-      await convertXlsxFilesToCSVAndUpload(extractDir);
+      let tmp = await convertXlsxFilesToCSVAndUpload(extractDir);
+      pFileIds.concat(tmp);
     } else {
-      await uploadtoOpenAI(uploadedFilePath);
+      pFileIds.push(await uploadtoOpenAI(uploadedFilePath));
     }
-
+    /*
     const mondayDefaultPath = "/tmp/mondayDefault.txt";
     const content =
       "Monday.com's user-centric design and collaborative tools empower teams to streamline workflows and boost productivity seamlessly.";
@@ -158,11 +168,11 @@ export async function POST(request: NextRequest) {
     });
     FileIds.push(fileForRetrieval.id);
     console.log(`File uploaded, ID: ${fileForRetrieval.id}`);
-
-    if (FileIds && FileIds.length > 0) {
-      return NextResponse.json({ success: true, fileIds: FileIds });
+    */
+    if (pFileIds && pFileIds.length > 0) {
+      return NextResponse.json({ success: true, fileIds: pFileIds });
     } else {
-      return NextResponse.json({ success: false, fileIds: FileIds });
+      return NextResponse.json({ success: false, fileIds: pFileIds });
     }
   } catch (error) {
     // Log and handle any errors during file upload
