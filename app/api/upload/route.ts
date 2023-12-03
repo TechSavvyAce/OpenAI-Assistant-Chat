@@ -22,6 +22,7 @@ let FileIds: String[] = [];
 
 async function uploadtoOpenAI(filepath: string) {
   try {
+    console.log(`uploadtoOpenAI: filepath = ${filepath}`);
     const fileForRetrieval = await openai.files.create({
       file: createReadStream(filepath),
       purpose: "assistants",
@@ -41,6 +42,7 @@ async function convertXlsxToCSVAndUpload(
   csvFilePath: string,
 ) {
   try {
+    console.log('convertXlsxToCSVAndUpload');
     let obj = xlsx.parse(xlsxFilePath);
     var rows = [];
     var writeStr = "";
@@ -99,7 +101,8 @@ async function convertXlsxFilesToCSVAndUpload(directory: string) {
       } else if (file.endsWith(".xlsx")) {
         const csvFileName = `${pathModule.basename(file, ".xlsx")}.csv`;
         const csvFilePath = pathModule.join(directory, csvFileName);
-
+        console.log('csvFileName',csvFileName)
+        console.log('csvFilePath',csvFilePath)
         fileIDs.push(await convertXlsxToCSVAndUpload(filePath, csvFilePath));
       } else {
         // uploadtoOpenAI(filePath);
