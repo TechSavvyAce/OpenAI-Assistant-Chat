@@ -104,24 +104,24 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
     const Path = "../../tmp";
 
-    fs.promises
-      .access(Path)
-      .then(() => {
-        console.log("Path exists. Deleting files inside...");
-        return fs.promises.readdir(Path);
-      })
-      .then((files) => {
-        const unlinkPromises = files.map((file) =>
-          fs.promises.unlink(pathModule.join(Path, file)),
-        );
-        return Promise.all(unlinkPromises);
-      })
-      .catch(() => {
-        console.log("Path does not exist. Creating...");
-        return fs.promises.mkdir(Path, { recursive: true });
-      })
-      .then(() => console.log("Operation completed successfully."))
-      .catch((err) => console.error("Error:", err));
+    // fs.promises
+    //   .access(Path)
+    //   .then(() => {
+    //     console.log("Path exists. Deleting files inside...");
+    //     return fs.promises.readdir(Path);
+    //   })
+    //   .then((files) => {
+    //     const unlinkPromises = files.map((file) =>
+    //       fs.promises.unlink(pathModule.join(Path, file)),
+    //     );
+    //     return Promise.all(unlinkPromises);
+    //   })
+    //   .catch(() => {
+    //     console.log("Path does not exist. Creating...");
+    //     return fs.promises.mkdir(Path, { recursive: true });
+    //   })
+    //   .then(() => console.log("Operation completed successfully."))
+    //   .catch((err) => console.error("Error:", err));
 
     const uploadedFilePath = Path + `/${uploadedfile.name}`;
     await writeFile(uploadedFilePath, buffer);
@@ -150,10 +150,10 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     // Log and handle any errors during file upload
-    console.log("Error uploading file:", error);
+    console.log("Error Checking file:", error);
     return NextResponse.json({
       success: false,
-      message: "Error uploading file",
+      message: "Error Checking file",
     });
   }
 }
