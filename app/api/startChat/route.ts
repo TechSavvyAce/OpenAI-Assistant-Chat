@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
 
       // Check if 'fileIds' exists and is a non-null string
       let fileIds: string[] = [];
-      const timeoutInSeconds = 5; // Change this value to set a different timeout
+      const timeoutInSeconds = 10; // Change this value to set a different timeout
 
       if (fileIdsString) {
         // Split the string by a delimiter (comma in this case) to get an array of file IDs
