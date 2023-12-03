@@ -139,6 +139,7 @@ export async function POST(request: NextRequest) {
       zip.extractAllTo(extractDir, true);
       console.log(`zipFile is extracted to ${extractDir}`);
       try {
+        filepaths = [];
         await convertXlsxFilesToCSVAndUpload(extractDir);
       } catch (e) {
         console.log(`Convert Xlsx to CSV Error:`, e);
