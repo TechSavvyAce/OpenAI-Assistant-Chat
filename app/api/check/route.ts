@@ -13,9 +13,8 @@ import OpenAI from "openai";
 import xlsx from "node-xlsx";
 import pathModule from "path";
 import fs from "fs";
-import fse from 'fs-extra';
 
-let filepaths:String[] = [];
+let filepaths: String[] = [];
 
 // Function to convert XLSX to PDF
 async function convertXlsxToCSVAndUpload(
@@ -105,15 +104,24 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
     const Path = "./tmp";
 
-    const pathExists = await fse.pathExists(Path);
-
-    if (pathExists) {
-      console.log('Path exists. Deleting files inside...');
-      await fse.emptyDir(Path); // Deletes all files inside the directory
-    } else {
-      console.log('Path does not exist. Creating...');
-      await fse.ensureDir(Path); // Creates directory if it doesn't exist
-    }
+    fs.promises
+      .access(Path)
+      .then(() => {
+        console.log("Path exists. Deleting files inside...");
+        return fs.promises.readdir(Path);
+      })
+      .then((files) => {
+        const unlinkPromises = files.map((file) =>
+          fs.promises.unlink(pathModule.join(Path, file)),
+        );
+        return Promise.all(unlinkPromises);
+      })
+      .catch(() => {
+        console.log("Path does not exist. Creating...");
+        return fs.promises.mkdir(Path, { recursive: true });
+      })
+      .then(() => console.log("Operation completed successfully."))
+      .catch((err) => console.error("Error:", err));
 
     const uploadedFilePath = Path + `/${uploadedfile.name}`;
     await writeFile(uploadedFilePath, buffer);
@@ -131,13 +139,13 @@ export async function POST(request: NextRequest) {
       } catch (e) {
         console.log(`Convert Xlsx to CSV Error:`, e);
       }
-      if (filepaths.length > 0){
+      if (filepaths.length > 0) {
         return NextResponse.json({ success: true, directory: filepaths });
       } else {
         return NextResponse.json({ success: false, directory: filepaths });
       }
     } else {
-        filepaths.push(uploadedFilePath);
+      filepaths.push(uploadedFilePath);
       return NextResponse.json({ success: true, directory: filepaths });
     }
   } catch (error) {
