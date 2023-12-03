@@ -131,7 +131,13 @@ export async function POST(request: NextRequest) {
     const uploadedFileType = pathModule.extname(uploadedfile.name).slice(1);
     if (uploadedFileType === "zip") {
       const zip = new AdmZip(uploadedFilePath);
-      const extractDir = Path + `/${pathModule.parse(uploadedfile.name).name}`;
+      const currentDate = new Date();
+
+      const hours = currentDate.getHours().toString().padStart(2, "0");
+      const minutes = currentDate.getMinutes().toString().padStart(2, "0");
+      const seconds = currentDate.getSeconds().toString().padStart(2, "0");
+
+      const extractDir = Path + `/${pathModule.parse(uploadedfile.name).name}` + `${hours}${minutes}${seconds}`;
       zip.extractAllTo(extractDir, true);
       console.log(`zipFile is extracted to ${extractDir}`);
       try {
