@@ -14,7 +14,7 @@ import remarkGfm from "remark-gfm";
 import Textarea from "react-textarea-autosize";
 
 let FileIds: String[] = [];
-let directory: string[] = [];
+let directory: String[] = [];
 
 // Chat component that manages the chat interface and interactions
 export default function Chat() {
@@ -63,7 +63,7 @@ export default function Chat() {
 
   interface CheckResponse {
     success: boolean;
-    directory: string[];
+    directory?: string[];
   }
 
   // Handler for file input changes
