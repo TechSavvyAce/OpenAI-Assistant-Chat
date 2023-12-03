@@ -23,6 +23,8 @@ export async function POST(req: NextRequest) {
 
       // Check if 'fileIds' exists and is a non-null string
       let fileIds: string[] = [];
+      const timeoutInSeconds = 5; // Change this value to set a different timeout
+
       if (fileIdsString) {
         // Split the string by a delimiter (comma in this case) to get an array of file IDs
         fileIds = fileIdsString.split(",");
@@ -83,12 +85,10 @@ export async function POST(req: NextRequest) {
       // Poll for the completion of the run
       let completedRun;
       do {
-        await new Promise((resolve) => setTimeout(resolve, 10000)); // Delay for 1 second
+        await new Promise((resolve) => setTimeout(resolve, timeoutInSeconds * 1000)); // Delay for specified seconds
 
-        completedRun = await openai.beta.threads.runs.retrieve(
-          threadId,
-          run.id,
-        );
+        completedRun = await openai.beta.threads.runs.retrieve(threadId, run.id);
+
         console.log("Run status:", completedRun.status); // Log the status each time
 
         // Return if the run appears dead
