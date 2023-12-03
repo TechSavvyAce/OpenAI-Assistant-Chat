@@ -61,23 +61,18 @@ async function convertXlsxToCSVAndUpload(
     for (var i = 0; i < rows.length; i++) {
       writeStr += rows[i].join(",") + "\n";
     }
-    console.log('writeStr',writeStr);
+   
     // writes to a file, but you will presumably send the csv as a
     // response instead
     fs.writeFile(csvFilePath, writeStr, function (err) {
       if (err) {
         console.log(err);
-        return '';
-        //throw err; // Handle the error if needed
       }
-      console.log(
-        `Converted from ${xlsxFilePath} to ${csvFilePath} successfully!`,
-      );
-
-      const uploadedFileid = uploadtoOpenAI(csvFilePath);
-      return uploadedFileid;
+      return '';
     });
-    console.log('writeStr1===',writeStr);
+    console.log('writeStr===',writeStr);
+    const uploadedFileid = uploadtoOpenAI(csvFilePath);
+    return uploadedFileid;
   } catch (error) {
     console.log(`Error while converting ${xlsxFilePath} to CSV:`, error);
     return '';
