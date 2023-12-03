@@ -14,6 +14,7 @@ import remarkGfm from "remark-gfm";
 import Textarea from "react-textarea-autosize";
 
 let FileIds: String[] = [];
+let directory: string[] = [];
 
 // Chat component that manages the chat interface and interactions
 export default function Chat() {
@@ -60,6 +61,11 @@ export default function Chat() {
     // Other properties if present in the response
   }
 
+  interface CheckResponse {
+    success: boolean;
+    directory: string[];
+  }
+
   // Handler for file input changes
   const handleFileChange = async (selectedFile: File) => {
     setFile(selectedFile);
@@ -77,11 +83,30 @@ export default function Chat() {
       return;
     }
 
+    console.log("Checking file data.");
+    const checkResponse = fetch("/api/check", {
+      method: "POST",
+      body: fileData,
+    });
+
+    const cResponse: CheckResponse = await (await checkResponse).json();
+    if (cResponse.success === true) {
+      directory = cResponse.directory;
+    }
+
+    const pathData = new FormData();
+    if (directory) {
+      pathData.set("path", directory);
+    } else {
+      console.log("Directory is not defined");
+      return;
+    }
+
     // Uploading file data
     console.log("Uploading file data.");
     const uploadResponse = fetch("/api/upload", {
       method: "POST",
-      body: fileData,
+      body: pathData,
     });
 
     const response: UploadResponse = await (await uploadResponse).json();
