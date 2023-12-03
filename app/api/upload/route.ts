@@ -46,7 +46,7 @@ async function convertXlsxToCSVAndUpload(
     let obj = xlsx.parse(xlsxFilePath);
     var rows = [];
     var writeStr = "";
-
+    console.log('obj=',obj);
     //looping through all sheets
     for (var i = 0; i < obj.length; i++) {
       var sheet = obj[i];
@@ -61,7 +61,7 @@ async function convertXlsxToCSVAndUpload(
     for (var i = 0; i < rows.length; i++) {
       writeStr += rows[i].join(",") + "\n";
     }
-
+    console.log('writeStr',writeStr);
     // writes to a file, but you will presumably send the csv as a
     // response instead
     fs.writeFile(csvFilePath, writeStr, function (err) {
@@ -77,6 +77,7 @@ async function convertXlsxToCSVAndUpload(
       const uploadedFileid = uploadtoOpenAI(csvFilePath);
       return uploadedFileid;
     });
+    console.log('writeStr1===',writeStr);
   } catch (error) {
     console.log(`Error while converting ${xlsxFilePath} to CSV:`, error);
     return '';
