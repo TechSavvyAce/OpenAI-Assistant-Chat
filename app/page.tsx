@@ -41,7 +41,7 @@ export default function Chat() {
   const [assistantModel, setAssistantModel] = useState("gpt-4-1106-preview");
   const [assistantDescription, setAssistantDescription] = useState("");
   const [inputmessage, setInputmessage] = useState(
-    "discussion for monday.com workflow",
+    "Analyze the CSV files related with our Monday.com workflow and assist with it.",
   );
   const [chatMessages, setChatMessages] = useState<
     { role: string; content: any }[]
@@ -70,7 +70,7 @@ export default function Chat() {
   // Handler for file input changes
   const handleFileChange = async (selectedFile: File) => {
     setFile(selectedFile);
-
+    setStartLoading(true);
     // Preparing file data for upload
     const fileInput = document.getElementById("file-input") as HTMLInputElement;
     const file = fileInput && fileInput.files ? fileInput.files[0] : null;
@@ -150,6 +150,7 @@ export default function Chat() {
     } else {
       console.log("No directories to upload.");
     }
+    setStartLoading(false);
   };
 
   // Handler for form submissions
