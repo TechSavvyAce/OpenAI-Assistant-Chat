@@ -14,7 +14,7 @@ import xlsx from "node-xlsx";
 import pathModule from "path";
 import fs from "fs";
 
-let filepaths:string = [];
+let filepaths:String[] = [];
 
 // Function to convert XLSX to PDF
 async function convertXlsxToCSVAndUpload(
