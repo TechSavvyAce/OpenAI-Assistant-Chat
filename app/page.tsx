@@ -13,8 +13,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Textarea from "react-textarea-autosize";
 
-let FileIds: String[] = [];
-let directory: String[] = [];
+let FileIds: string[] = [];
+let directory: string[] = [];
 
 // Chat component that manages the chat interface and interactions
 export default function Chat() {
